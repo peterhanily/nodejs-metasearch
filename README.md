@@ -1,30 +1,15 @@
 # Node.js Starter Application
 
-BlueMix provides a Node.js starter application as a template so that you can add your code and push the changes back to the BlueMix environment.
+Fully Functioning Node.js Metasearch Engine
 
+## Features
 
-## Files
+1. Uses 3 popular search engine (Google, Bing, Blekko)
+2. 2 Types of Result aggregation using the Combination Mulitply Non-Zero and Reciprocal Rank Fusion Algorithims
+3. Clustering with 3 different cluster sizes using the K-Means Machine Learning Algorithm
+4. Related Searches using differnt techniques
+5. Built using Node.js and the express.js framwork
 
-The Node.js starter application has files as below:
+## Live Demo
 
-*   instructions.md
-
-	This file describes the Next Steps for getting started with this template.
-
-*   app.js
-
-	This file contains the server side JavaScript code for your application written using the Node.js API
-
-*   views/
-
-	This directory contains the views of the application. It is required by the express framework and jade template engine in this sample application.
-
-*   public/
-
-	This directory contains public resources of the application. It is required by the express framework in this sample application.
-
-*   package.json
-
-	This file is required by the Node.js environment. It specifies this Node.js project name, dependencies, and other configurations of your Node.js application.
-
-
+http://bit.ly/1jc9KQI
