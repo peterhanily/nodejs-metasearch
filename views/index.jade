@@ -1,0 +1,130 @@
+extends layout
+
+block content
+  #overlayHead
+    a(id="showOrHideOverlay", href="#") About/Advanced ▲
+
+  #overlayDiv(style="display:none;")
+
+    h3 Metasearch
+    .section
+      p A Metasearch engine is a single search engine that combines
+       | the results of many individual search engines into a single ranked list to provide you with a better search experience.
+      p What this means for the you as a user is that instead of having to use many different websites,
+       |you can now just visit here and get a more accurate response to your query saving you time.
+      p We also support Boolean queries such as AND OR NOT.
+       | This allows you to enter a more precise query and get that answer even faster.
+      p For example jaguar NOT cars will give you results on the animal rather than the British motor company
+      p The source code for this project can be found 
+        a(href="#") here
+    h3 Google
+    .section
+      p Google  is the most used search engine on the internet.
+       | Founded in 1998 by Sergey Brin and Larry Page as a PhD project it quickly
+       | developed in the most extensive and widely used search engine out there.
+      p One of the reasons for this is that Google uses Page Rank created by Larry Page to efficiently
+       | crawl the internet and offer you accurate websites for your query
+
+    h3 Bing
+    .section
+      p Bing is the newest search engine offered by the Microsoft Corporation. 
+       |Created in 2009 it superseded MSN Search and Live Search. 
+      p Bing is Google's main competitor and offers much of the same search functionality as Google.
+       |It's aim is to provide the fastest most accurate search Results available.
+      p Bings server infrastructure is powered by a system known as Tiger.
+       | Since 2009 Bing is the main search content provider for the former world leader in search engines Yahoo.
+
+    h3 Blekko
+    .section
+      p Blekko is one of the newest companies to enter the search engine market.
+       |It was founded in 2007 by Rich Skrenta who also created Newhoo and the elk cloner virus. 
+      p It's main operational goal is providing better search results than Google.
+       |It does the by trying using the slash tag concept that it developed.
+      p Slash Tags allow the user to search under different topics from website lists created
+       |by Human editors thus providing more accurate search results from more reputable websites. 
+      p With Blekko's popularity continuing to grow it is a search engine to look out for in the future
+
+    h3 Comb MNZ (Aggregation)
+    .section
+      p Comb multiply non-zero is one of the aggregation techniques that we offer to users.
+       |This technique is tried and tested and has consistently been shown to provide good quality ranked results.
+      p It works by assigning scores to results based on there position
+       | in the list returned by the search engines (Bing/Google/Blekko). 
+       |Higher ranked results get better scores. Then the amount of search engines that the 
+       |result appears in is multiplied by its score to give it its combMNZ score.
+       | Results are  finally sorted by score highest to lowest and displayed. 
+
+    h3 Reciprocal Rank Fusion (Aggregation)
+    .section
+      p Reciprocal Rank Fusion (RRF) is the other aggregation technique provided by this search engine.
+       |This technique has been shown to be highly effective in combining many ranked lists
+       | (such as those provided by Google, Bing and Blekko).
+      p It works by assigning each result a score using the reciprocal of the rank the result appears + 60. 
+       |This means that the importance of documents does not diminish as dramatically the lower the result appears. 
+       |Scores are then added and sorted into a single list for the user
+
+    h3 K-Means Clustering
+    .section
+      p K-Means clustering is method of separating the search results into topics
+       | thus making the search process more effective as you can now
+       | search for queries that may have multiple meanings such as "Tiger" under the heading that they desire.
+      p For example our Tiger Query may have topics such as "Car", "Apple OS",
+       | "Tiger Woods" or "Tigris" the river. In this search engine the amount of topics can be increased 
+       |and decreased to provide even more effective searching of topics.
+      p The K-Means algorithm itself first requires that the documents are preprocessed using natural
+       | language processes and  converted into corrector space using.
+       | They are then measured by how similar they are to each other with cosine similarity.
+       | Finally the documents are clustered into a preset number of groups  and returned to the user
+    h3 Advanced Options
+    .section
+      h4 Clustering Options
+      p 
+       strong Note: 
+       |Page loads approx 3-5 seconds faster when clustering is turned off
+      p
+       input(type="radio", name="toggleCluster", value="ON", form="myform", checked)
+       label ON
+      p
+       input(type="radio", name="toggleCluster", value="OFF", form="myform")
+       label OFF
+
+      h4 Query PreProcessing Options
+      p
+        strong Note:  
+        |Query PreProcessing may help or hinder your query. May take added time
+        input(type="radio", name="isQueryPrePro", value="ON", form="myform")
+        label ON
+        input(type="radio", name="isQueryPrePro", value="OFF", form="myform" , checked)
+        label OFF
+    h3 User Review Questionaire
+    .section
+     p To complete the user review for my project please visit 
+      a(href="https://docs.google.com/forms/d/14n36AgtlpDJ73dHrzz3pbKHS8d4Uh0n_xKHnA9vl0hA/viewform", target="_blank") here
+
+
+  #wrapper
+    #searchform
+        img(id='logo',src="images/METASEARCH.png", alt="METASEARCH")
+        form(id="myform", method='get', action='/q', autocomplete="off")
+         p
+          input(id='searchbox', onKeyUp="socket.emit('typing', { typed: this.value });", name='search[query]')
+          input(id='searchbutton', type='submit', value='Search')
+
+         #powered
+           p Powered By
+           a(href="http://www.bing.com", target="_blank", title="Bing.com")
+            img(src="images/bingscale.png", alt="Bing")
+           a(href="http://www.google.com", target="_blank",, title="Google.com")
+            img(src="images/googlescale.png", alt="Google")
+           a(href="http://www.blekko.com", target="_blank", title="Blekko.com")
+            img(id='Blekko',src="images/blekkoscale.png", alt="Blekko")
+
+  include ./footHomePg.jade
+
+  script
+    //- This applies the jquery accordion feature to the about/advanced panel
+    $(function(){ $( "#overlayDiv" ).accordion( {collapsible: true,fillSpace: true,heightStyle: "content"})});
+
+  script
+    //- This applies to the about advanced menu if you click outside it
+    $(document).mouseup(function (e){var container = $("#overlayDiv"); var div = document.getElementById('overlayDiv'); var header = document.getElementById('showOrHideOverlay'); if(!$('#overlayDiv').is(':visible') && e.target == header){div.style.display = 'block'; document.getElementById('showOrHideOverlay').innerHTML = 'About/Advanced ▼';}else if(e.target === header && $('#overlayDiv').is(':visible')){div.style.display = 'none';document.getElementById('showOrHideOverlay').innerHTML = 'About/Advanced ▲';return;}else if(!container.is(e.target) && container.has(e.target).length === 0){div.style.display = 'none';document.getElementById('showOrHideOverlay').innerHTML = 'About/Advanced ▲';}});

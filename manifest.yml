@@ -1,0 +1,9 @@
+applications:
+- host: metasearch
+  disk: 1024M
+  name: metasearch
+  command: node app.js
+  path: .
+  domain: stage1.mybluemix.net
+  instances: 1
+  memory: 900M

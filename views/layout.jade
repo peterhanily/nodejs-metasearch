@@ -1,0 +1,15 @@
+doctype html
+html
+  head
+    //- Specify language w3c way and the way google reccomands
+    meta(lang="en", xml:lang="en", xmlns="http://www.w3.org/1999/xhtml")
+    meta(http-equiv="Content-Language", content="en")
+    //- Print title of page
+    title= title
+    //-Load css style sheet and jquery css style sheet
+    link(rel='stylesheet', type="text/css", href='/stylesheets/style.css')
+    link(rel="stylesheet", type="text/css", href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css")
+  //- Start body 
+  body
+    //- Include block content (results.jade OR index.jade)
+    block content

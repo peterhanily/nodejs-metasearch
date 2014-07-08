@@ -1,0 +1,23 @@
+{
+	"name": "MetaSearch",
+	"version": "0.0.1",
+	"description": "MetaSearch Engine (GOOGLE, BING, BLEKKO)",
+	"dependencies": {
+		"cf-env": "*",
+		"express": "3.2.5",
+		"jade": "*",
+		"socket.io": "0.9.16",
+		"async": "0.2.9",
+		"async-foreach": "0.1.3",
+		"request": "2.21.0",
+		"mathjs": "0.10.0",
+		"natural": "*",
+		"pos": "0.1.2",
+		"number-extended" : "0.0.2",
+		"jquery" : "1.8.3"
+	},
+	"engines": {
+		"node": "0.10.25"
+	},
+	"repository": {}
+}

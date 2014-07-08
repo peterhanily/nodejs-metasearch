@@ -1,0 +1,459 @@
+extends layout
+
+block content
+  //-This is the wrapper for the fixed bar at the top of page
+  #barwrap
+    //-This is the top bar it contains the search form like the index
+    #topbar 
+      form(method='get', action='/q', autocomplete="off")
+        p
+          a(href="http://metasearch.stage1.mybluemix.net",)
+           img(src="images/METASEARCHSMALLALT.png", alt="Go to MetaSearch Home", title="Go to MetaSearch Home")
+           //-On key up a suggests event is emitted that sends the current contents of the query to the server
+           //-The starting value is set to the query that was entered
+          input(id='searchboxResultpg', onKeyUp="socket.emit('typing', { typed: this.value });", name='search[query]', value=Query)
+          //-This filed is hidden on the results page if a person has setclustering to off
+          //-It will stay off for the untill they change it by going to the homepage
+          - if(toggleCluster === false)
+            input(id='hiddenFiledForClustering', name="toggleCluster", value='OFF', style="display:none;")
+          //- This filed is hidden on the results page same as above but for query preprocessing default OFF
+          //- If this is true the hidden field will be included to keep it on
+          - if(isQueryPrePro === true)
+            input(id='hiddenFiledForQueryPrePro', name="isQueryPrePro", value='ON', style="display:none;")
+          input(id='searchbuttonResultpg', type='submit', value='Search')
+        
+        //- The time block contains the time /1000 (javascript timestamps are in miliseconds)
+        //- Also the amount 
+        #timeBlock
+          p Total Results: 
+            |#{blekJson.RESULT.length + googJson.items.length + bingJson.items.length}
+            |(#{time/1000}
+            |seconds)
+
+    //- This is the bottom bar wrapper it hold  the different display buttons
+    #bottombar
+      //- If the calulator is to appear show the show/hide button
+      if isCalcBool
+       a(id='showCalc',href="#", OnClick="toggleVis('calbox')") Hide Calculator
+
+      input(type="radio", name="category", id="category5",value="combMNZ", title="Aggregated List using Comb MNZ", checked)
+      label(for="category5") Aggregated 1
+
+      input(type="radio", name="category", id="category4",value="RRF", title="Aggregated List using Reciprocal Rank Fusion")
+      label(for="category4") Aggregated 2      
+
+      //- If clustering is being done and not switched off show its button
+      if clusterObj != false
+        input(type="radio", name="category", id="category7",value="Clustered", title="Clusters of Results using the K-Means algorithm")
+        label(for="category7") Clustering
+
+      input(type="radio", name="category", id="category6",value="Columed")
+      label(for="category6") Columned
+
+      input(type="radio", name="category", id="category2", value="Bing") 
+      label(for="category2") Bing
+
+      input(type="radio", name="category", id="category3",value="Google")
+      label(for="category3") Google
+
+      input(type="radio", name="category", id="category1", value="Blekko")
+      label(for="category1") Blekko
+  
+
+
+  #contentwrap
+      //- If the query is a sum show the calulator 
+      if isCalcBool
+       #calbox
+        #prevsum
+
+        #display
+        .row
+            .button
+              input(type="button", name="(", value="(", OnClick="addDig('(')")
+            .button
+              input(type="button", name=")", value=")", OnClick="addDig(')')")
+            .button
+              input(type="button", name="%", value="%", OnClick="addDig('%')")
+            .button
+              input(type="button", name="Clear", value="Clear", OnClick="clearAll()")
+        .row
+            .button
+              input(type="button", name="7", value="7", OnClick="addDig('7')")
+            .button
+              input(type="button", name="8", value="8", OnClick="addDig('8')")
+            .button
+              input(type="button", name="9", value="9", OnClick="addDig('9')")
+            .button
+              input(type="button", name="/", value="/", OnClick="addDig('/')")
+        .row
+            .button
+              input(type="button", name="4", value="4", OnClick="addDig('4')")
+            .button
+              input(type="button", name="5", value="5", OnClick="addDig('5')")
+            .button
+              input(type="button", name="6", value="6", OnClick="addDig('6')")
+            .button
+              input(type="button", name="*", value="*", OnClick="addDig('*')")
+        .row
+            .button
+              input(type="button", name="1", value="1", OnClick="addDig('1')")
+            .button
+              input(type="button", name="2", value="2", OnClick="addDig('2')")
+            .button
+              input(type="button", name="3", value="3", OnClick="addDig('3')")
+            .button
+              input(type="button", name="-", value="-", OnClick="addDig('-')")
+        .row
+            .button
+              input(type="button", name="0", value="0", OnClick="addDig('0')")
+            .button
+              input(type="button", name=".", value=".", OnClick="addDig('.')")
+            .button
+              input(type="button", name="=", value="=", OnClick="socketCalc()")
+            .button
+              input(type="button", name="+", value="+", OnClick="addDig('+')")
+
+      //- This is the google results div
+      #showGoogle(style="display:none;")
+       a(href="http://www.google.com", target="_blank", title="Google.com")
+         img(src="images/GoogleResultPg.png", alt="Google.com")
+       - if(googJson.items.length > 0){
+         - for(var i = 0; i < googJson.items.length; i++){
+               .googleBox(style="display:none;")
+                 p #{i+1}.
+                 a(href=googJson.items[i].URL) 
+                   p= googJson.items[i].title
+                 p !{googJson.items[i].htmlSnippet}
+                 h3= googJson.items[i].displayLink
+         - }
+       - }
+       - else{
+          .googleBox(style="display:none;")
+            p Google returned no results
+       - }
+    
+      //- Bing results div
+      #showBing(style="display:none;")
+       a(href="http://www.bing.com", target="_blank", title="bing.com")
+         img(src="images/bingResultPg.png", alt="bing.com")
+       - if(bingJson.items.length > 0) {
+         - for(var i = 0; i < bingJson.items.length; i++){
+               .bingBox(style="display:none;")
+                 p #{i+1}.
+                 a(href= bingJson.items[i].URL) 
+                   p= bingJson.items[i].Title
+                 p=  bingJson.items[i].Description
+                 h3= bingJson.items[i].DisplayUrl
+         - }
+       - }
+       - else {
+           .bingBox(style="display:none;")
+              p Bing returned no results
+       - }
+      
+      #showBlekko(style="display:none;")
+       a(href="http://www.blekko.com", target="_blank", title="Blekko.com")
+         img(src="images/blekkoResultPg.png", alt="Blekko.com")
+       - if(blekJson.RESULT.length > 0){
+         - for(var i = 0; i < blekJson.RESULT.length; i++){
+           .blekkoBox(style="display:none;")
+             p #{i+1}.
+             a(href=blekJson.RESULT[i].URL) 
+               p !{blekJson.RESULT[i].url_title}
+             p !{blekJson.RESULT[i].snippet}
+             h3= blekJson.RESULT[i].short_host
+         - }
+       - } 
+       - else {
+          .blekkoBox(style="display:none;")
+            p Blekko returned no results
+       - }
+
+      #showRRF(style="display:none;")
+       h2 Aggregated Results Method 2
+        br
+        |(RRF)
+       - if(aggreg.items.length > 0) {
+         - for(var i = 0; i < aggreg.items.length; i++){
+          - if(aggreg.items[i].hasOwnProperty('link')) {
+            .rrfBox(style="display:none;")
+                 p #{i+1}.
+                 a(href=aggreg.items[i].URL) 
+                   p= aggreg.items[i].title
+                 p !{aggreg.items[i].htmlSnippet}
+                 h3= aggreg.items[i].displayLink
+          - }
+          - else if(aggreg.items[i].hasOwnProperty('Url')) {
+            .rrfBox(style="display:none;")
+                 p #{i+1}.
+                 a(href= aggreg.items[i].URL) 
+                   p= aggreg.items[i].Title
+                 p= aggreg.items[i].Description
+                 h3= aggreg.items[i].DisplayUrl
+          - }
+          - else if(aggreg.items[i].hasOwnProperty('url')) {
+            .rrfBox(style="display:none;")
+               p #{i+1}.
+               a(href=aggreg.items[i].URL) 
+                 p !{aggreg.items[i].url_title}
+               p !{aggreg.items[i].snippet}
+               h3= aggreg.items[i].short_host
+          - }
+         - }
+       - }
+       - else {
+           .rrfBox(style="display:none;")
+             p No results returned by Google, Bing and Blekko 
+       - }
+
+
+      #showcombMNZ
+       h2 Aggregated Results Method 1
+        br
+        |(combMNZ)
+       - if(aggreg2.items.length > 0) {
+         - for(var i = 0; i < aggreg2.items.length; i++){
+          - if(aggreg2.items[i].hasOwnProperty('link')) {
+            .combMNZBox
+                 p #{i+1}.
+                 a(href=aggreg2.items[i].URL) 
+                   p= aggreg2.items[i].title
+                 p !{aggreg2.items[i].htmlSnippet}
+                 h3= aggreg2.items[i].displayLink
+          - }
+          - else if(aggreg2.items[i].hasOwnProperty('Url')) {
+            .combMNZBox
+                 p #{i+1}.
+                 a(href= aggreg2.items[i].URL) 
+                   p= aggreg2.items[i].Title
+                 p=  aggreg2.items[i].Description
+                 h3= aggreg2.items[i].DisplayUrl
+          - }
+          - else if(aggreg2.items[i].hasOwnProperty('url')) {
+            .combMNZBox
+               p #{i+1}.
+               a(href=aggreg2.items[i].URL) 
+                 p !{aggreg2.items[i].url_title}
+               p !{aggreg2.items[i].snippet}
+               h3= aggreg2.items[i].short_host
+          - }
+         - }
+       - }
+       - else{
+             .combMNZBox
+                p No results returned by Google, Bing and Blekko 
+       - }
+
+
+      #showColumed(style="display:none;")
+        .box3Col1(style="display:none;")
+          a(href="http://www.bing.com", target="_blank", title="Bing.com")
+            img(src="images/bingResultPg.png", alt="Bing")
+          - if(bingJson.items.length > 0) {
+            - for(var i = 0; i < bingJson.items.length; i++){
+               .smallBox(style="display:none;")
+                 p #{i+1}.
+                 a(href= bingJson.items[i].URL) 
+                   p= bingJson.items[i].Title
+                 p=  bingJson.items[i].Description
+                 h3= bingJson.items[i].DisplayUrl
+            - }
+          - }
+          - else {
+               .smallBox(style="display:none;")
+                  p Bing returned no results
+          - }
+
+        .box3Col2(style="display:none;")
+          a(href="http://www.google.com", target="_blank", title="Google.com")
+            img(src="images/GoogleResultPg.png", alt="Google.com")
+          - if(googJson.items.length > 0) {
+            - for(var i = 0; i < googJson.items.length; i++){
+               .smallBox(style="display:none;")
+                 p #{i+1}.
+                 a(href=googJson.items[i].URL) 
+                   p= googJson.items[i].title
+                 p !{googJson.items[i].htmlSnippet}
+                 h3= googJson.items[i].displayLink
+            - }
+          - }
+          - else{
+               .smallBox(style="display:none;")
+                  p Google returned no results
+          - }
+
+        .box3Col3(style="display:none;")
+          a(href="http://www.blekko.com", target="_blank", title="Blekko.com")
+            img(src="images/blekkoResultPg.png", alt="blekko.com")
+          - if(blekJson.RESULT.length > 0){
+           - for(var i = 0; i < blekJson.RESULT.length; i++){
+             .smallBox(style="display:none;")
+               p #{i+1}.
+               a(href=blekJson.RESULT[i].URL) 
+                 p !{blekJson.RESULT[i].url_title}
+               p !{blekJson.RESULT[i].snippet}
+               h3= blekJson.RESULT[i].short_host
+           - }
+          - } 
+          - else {
+            .smallBox(style="display:none;")
+              p Blekko returned no results
+          - }
+
+      //- Cluster section depending on whether it is set to off or on
+      if clusterObj != false
+        #showClustered(style="display:none;")
+          #leftPanel(style="display:none;")
+            h2 Clusters
+
+            #fiveTopics(style="display:none;")
+              - for(var i =0; i < clusterObj.k5.clusterNames.length; i++){
+                  p 
+                   a(href='#', OnClick="clustersShowDiv(#{i}, '#fiveTopics')") ⚫ #{clusterObj.k5.clusterNames[i]} (#{clusterObj.k5.clusters[i].length})
+              - }
+              p
+                a(class="changeAmount", href="#", OnClick="showTopics('#eightTopics', '#fiveTopics')") ▶ More Topics 
+
+            #eightTopics(style="display:none;")
+              p
+                a(class="changeAmount", href="#", OnClick="showTopics('#fiveTopics', '#eightTopics')") ▶ Less Topics
+              - for(var i =0; i < clusterObj.k8.clusterNames.length; i++) {
+                  p 
+                   a(href='#', OnClick="clustersShowDiv(#{i}, '#eightTopics')") ⚫ #{clusterObj.k8.clusterNames[i]} (#{clusterObj.k8.clusters[i].length})
+              - }
+              p
+                a(class="changeAmount", href="#", OnClick="showTopics('#tenTopics', '#eightTopics')") ▶ More Topics 
+
+            #tenTopics(style="display:none;")
+              p
+                a(class="changeAmount", href="#", OnClick="showTopics('#eightTopics', '#tenTopics')") ▶ Less Topics            
+              - for(var i = 0; i < clusterObj.k10.clusterNames.length; i++){
+                  p 
+                   a(href='#', OnClick="clustersShowDiv(#{i}, '#tenTopics')") ⚫ #{clusterObj.k10.clusterNames[i]} (#{clusterObj.k10.clusters[i].length})
+              - }
+
+          //- Cluster results display for each k value i.e 5, 8 and 10
+          #rightPanel(style="display:none;")
+            #cluster5(style="display:none;")
+              - for(var i =0; i < clusterObj.k5.clusters.length; i++){
+                  div(id="cluster5Topic#{i}", class="clusterBox", style="display:none;") 
+                    h2 #{clusterObj.k5.clusterNames[i]}
+                    - for(var j = 0; j < clusterObj.k5.clusters[i].length; j++){
+                        .resultClustBox(style="display:none;")
+                          - if(clusterObj.k5.clusters[i][j].hasOwnProperty('link')) {
+                                 p #{j+1}.
+                                 a(href=clusterObj.k5.clusters[i][j].URL) 
+                                   p= clusterObj.k5.clusters[i][j].title
+                                 p !{clusterObj.k5.clusters[i][j].htmlSnippet}
+                                 h3= clusterObj.k5.clusters[i][j].displayLink
+                          - }
+                          - else if(clusterObj.k5.clusters[i][j].hasOwnProperty('Url')) {
+                                 p #{j+1+1}.
+                                 a(href= clusterObj.k5.clusters[i][j].URL) 
+                                   p= clusterObj.k5.clusters[i][j].Title
+                                 p=  clusterObj.k5.clusters[i][j].Description
+                                 h3= clusterObj.k5.clusters[i][j].DisplayUrl
+                          - }
+                          - else if(clusterObj.k5.clusters[i][j].hasOwnProperty('url')) {
+                               p #{j+1}.
+                               a(href=clusterObj.k5.clusters[i][j].URL) 
+                                 p !{clusterObj.k5.clusters[i][j].url_title}
+                               p !{clusterObj.k5.clusters[i][j].snippet}
+                               h3= clusterObj.k5.clusters[i][j].short_host
+                          - }
+                    - }
+              - }
+
+            #cluster8(style="display:none;")
+              - for(var i =0; i < clusterObj.k8.clusters.length; i++){
+                  div(id="cluster8Topic#{i}", class="clusterBox", style="display:none;") 
+                    h2= clusterObj.k8.clusterNames[i]
+                    - for(var j = 0; j < clusterObj.k8.clusters[i].length; j++){
+                        .resultClustBox(style="display:none;")
+                          - if(clusterObj.k8.clusters[i][j].hasOwnProperty('link')) {
+                                 p #{j+1}.
+                                 a(href=clusterObj.k8.clusters[i][j].URL) 
+                                   p= clusterObj.k8.clusters[i][j].title
+                                 p !{clusterObj.k8.clusters[i][j].htmlSnippet}
+                                 h3= clusterObj.k8.clusters[i][j].displayLink
+                          - }
+                          - else if(clusterObj.k8.clusters[i][j].hasOwnProperty('Url')) {
+                                 p #{j+1}.
+                                 a(href= clusterObj.k8.clusters[i][j].URL) 
+                                   p= clusterObj.k8.clusters[i][j].Title
+                                 p=  clusterObj.k8.clusters[i][j].Description
+                                 h3= clusterObj.k8.clusters[i][j].DisplayUrl
+                          - }
+                          - else if(clusterObj.k8.clusters[i][j].hasOwnProperty('url')) {
+                               p #{j+1}.
+                               a(href=clusterObj.k8.clusters[i][j].URL) 
+                                 p !{clusterObj.k8.clusters[i][j].url_title}
+                               p !{clusterObj.k8.clusters[i][j].snippet}
+                               h3= clusterObj.k8.clusters[i][j].short_host
+                          - }
+                    - }                
+              - }
+
+            #cluster10(style="display:none;")
+              - for(var i =0; i < clusterObj.k10.clusters.length; i++){
+                  div(id="cluster10Topic#{i}", class="clusterBox", style="display:none;") 
+                    h2= clusterObj.k10.clusterNames[i]
+                    - for(var j = 0; j < clusterObj.k10.clusters[i].length; j++){
+                        .resultClustBox(style="display:none;")
+                          - if(clusterObj.k10.clusters[i][j].hasOwnProperty('link')) {
+                                 p #{j+1}.
+                                 a(href=clusterObj.k10.clusters[i][j].URL) 
+                                   p= clusterObj.k10.clusters[i][j].title
+                                 p !{clusterObj.k10.clusters[i][j].htmlSnippet}
+                                 h3= clusterObj.k10.clusters[i][j].displayLink
+                          - }
+                          - else if(clusterObj.k10.clusters[i][j].hasOwnProperty('Url')) {
+                                 p #{j+1}.
+                                 a(href= clusterObj.k10.clusters[i][j].URL) 
+                                   p= clusterObj.k10.clusters[i][j].Title
+                                 p=  clusterObj.k10.clusters[i][j].Description
+                                 h3= clusterObj.k10.clusters[i][j].DisplayUrl
+                          - }
+                          - else if(clusterObj.k10.clusters[i][j].hasOwnProperty('url')) {
+                               p #{j+1}.
+                               a(href=clusterObj.k10.clusters[i][j].URL) 
+                                 p !{clusterObj.k10.clusters[i][j].url_title}
+                               p !{clusterObj.k10.clusters[i][j].snippet}
+                               h3= clusterObj.k10.clusters[i][j].short_host
+                          - }
+                    - }
+              - }
+  //- Releated search bar shows the first five closest bing releated searches/ closest
+  //- word in thesarus/query + country/query + city/ query + regin
+  #relatedSearch
+    #verticalPanel
+    - for(var i =0; i < bingRelated.d.results.length && i < 5; i++){
+        - var urlEncodeBing = encodeURIComponent(bingRelated.d.results[i].Title)
+        a(href="http://metasearch.stage1.mybluemix.net/q?toggleCluster=ON&search%5Bquery%5D=#{urlEncodeBing}") #{bingRelated.d.results[i].Title}
+    - }
+    - if(ipinfoJson.countryName != "-"){
+        br
+        - var urlEncodeCountry = encodeURIComponent(Query + " " + ipinfoJson.countryName)
+        a(href="http://metasearch.stage1.mybluemix.net/q?toggleCluster=ON&search%5Bquery%5D=#{urlEncodeCountry}") #{Query} #{ipinfoJson.countryName}
+        br
+    - }
+    - if(ipinfoJson.regionName != "-"){
+        - var urlEncodeRegion = encodeURIComponent(Query + " " + ipinfoJson.regionName)
+        a(href="http://metasearch.stage1.mybluemix.net/q?toggleCluster=ON&search%5Bquery%5D=#{urlEncodeRegion}") #{Query} #{ipinfoJson.regionName}
+        br
+    - }
+    - if(ipinfoJson.cityName != "-"){
+        - var urlEncodeCity = encodeURIComponent(Query + " " + ipinfoJson.cityName)
+        a(href="http://metasearch.stage1.mybluemix.net/q?toggleCluster=ON&search%5Bquery%5D=#{urlEncodeCity}") #{Query} #{ipinfoJson.cityName}
+        br
+    - }
+    - if(relatedWords != false){
+        - for(var i = 0; i < relatedWords.length && i < 3; i++){
+          - var urlEncodeWord = encodeURIComponent(relatedWords[i])
+          a(href="http://metasearch.stage1.mybluemix.net/q?toggleCluster=ON&search%5Bquery%5D=#{urlEncodeWord}") #{relatedWords[i]}
+          br              
+        - }
+    - }
+
+  include ./footResultPg.jade
