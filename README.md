@@ -1,4 +1,4 @@
-# Node.js Starter Application
+# MetaSearch
 
 Fully Functioning Node.js Metasearch Engine
 
