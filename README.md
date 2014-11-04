@@ -12,7 +12,7 @@ Fully Functioning Node.js Metasearch Engine
 
 ## Live Demo
 
-http://bit.ly/1jc9KQI
+http://metasearch.mybluemix.net/
 
 ## Licence
 
