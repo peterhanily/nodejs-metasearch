@@ -10,9 +10,10 @@ Fully Functioning Node.js Metasearch Engine
 4. Related Search suggestions using differnt techniques
 5. Built using Node.js and the express.js framwork
 
-## Live Demo
+## ~~Live Demo~~
 
-http://metasearch.mybluemix.net/
+~~http://metasearch.mybluemix.net/~~
+This was a live demo that I had hosted on bluemix, however Blekko shutdown after being acquired by IBM and Bing closed off their API via the old Azure web store (there may be more methods to get the Bing API back working). Without those 2 it's just essentially my algorithims applied on Google search results.
 
 ## Licence
 
